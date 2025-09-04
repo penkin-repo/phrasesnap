@@ -1,0 +1,17 @@
+{
+  "name": "PhraseSnap",
+  "short_name": "PhraseSnap",
+  "description": "A fast and simple notes application",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

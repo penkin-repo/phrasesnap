@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* Light theme CSS variables */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+}
+
+/* Dark theme CSS variables */
+.dark {
+  --bg-primary: #1f2937;
+  --bg-secondary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --border-color: #4b5563;
+}
+
+/* Light theme styles */
+.bg-gray-50 { background-color: var(--bg-primary) !important; }
+.bg-white { background-color: var(--bg-secondary) !important; }
+.text-gray-900 { color: var(--text-primary) !important; }
+.text-gray-600 { color: var(--text-secondary) !important; }
+.text-gray-500 { color: var(--text-secondary) !important; }
+.border-gray-200 { border-color: var(--border-color) !important; }
+.border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Force dark theme styles */
+.dark .bg-gray-50 { background-color: var(--bg-primary) !important; }
+.dark .bg-white { background-color: var(--bg-secondary) !important; }
+.dark .text-gray-900 { color: var(--text-primary) !important; }
+.dark .text-gray-600 { color: var(--text-secondary) !important; }
+.dark .text-gray-500 { color: var(--text-secondary) !important; }
+.dark .border-gray-200 { border-color: var(--border-color) !important; }
+.dark .border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Note content styling */
+.note-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Note title styling */
+.note-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile search bar height */
+@media (max-width: 1023px) {
+  .mobile-search input {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+}
