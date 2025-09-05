@@ -7,12 +7,14 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
   const sortedNotes = [...notes].sort((a, b) => {
     switch (sortBy) {
       case 'created':
-        return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt);
       case 'title':
         return a.title.localeCompare(b.title);
+      case 'copied':
+        return (b.copy_count || 0) - (a.copy_count || 0);
       case 'updated':
       default:
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
+        return new Date(b.updated_at || b.updatedAt) - new Date(a.updated_at || a.updatedAt);
     }
   });
 
@@ -85,6 +87,7 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
             <option value="updated">Last updated</option>
             <option value="created">Date created</option>
             <option value="title">Title</option>
+            <option value="copied">Most copied</option>
           </select>
         </div>
       </div>

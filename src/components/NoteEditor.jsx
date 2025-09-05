@@ -135,10 +135,10 @@ export default function NoteEditor({ note, onSave, onCancel, subgroups }) {
       <div className="px-6 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
         <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
           <div>
-            {note && (
+            {note && note.created_at && note.updated_at && (
               <span>
-                Created: {new Date(note.createdAt).toLocaleDateString()} •
-                Updated: {new Date(note.updatedAt).toLocaleDateString()}
+                Created: {new Date(note.created_at).toLocaleDateString()} •
+                Updated: {new Date(note.updated_at).toLocaleDateString()}
               </span>
             )}
           </div>

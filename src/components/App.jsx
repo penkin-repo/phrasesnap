@@ -19,7 +19,19 @@ export default function App() {
    const [searchQuery, setSearchQuery] = useState('');
    const [editingNote, setEditingNote] = useState(null);
    const [showSubgroupManager, setShowSubgroupManager] = useState(false);
-   const [sortBy, setSortBy] = useState('updated'); // 'updated' | 'created' | 'title' | 'copied'
+   const [sortBy, setSortBy] = useState(() => {
+     if (typeof window !== 'undefined') {
+       return localStorage.getItem('notes_sortBy') || 'updated';
+     }
+     return 'updated';
+   }); // 'updated' | 'created' | 'title' | 'copied'
+
+   const handleSortChange = (newSortBy) => {
+     setSortBy(newSortBy);
+     if (typeof window !== 'undefined') {
+       localStorage.setItem('notes_sortBy', newSortBy);
+     }
+   };
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
    const [isDarkMode, setIsDarkMode] = useState(() => {
      if (typeof window !== 'undefined') {
@@ -509,7 +521,7 @@ export default function App() {
               {/* Desktop logout button */}
               <button
                 onClick={handleLogout}
-                className="hidden lg:inline-flex px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 cursor-pointer"
+                className="hidden lg:inline-flex px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 cursor-pointer"
               >
                 Logout
               </button>
@@ -525,7 +537,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setShowSubgroupManager(!showSubgroupManager)}
-                className="hidden lg:inline-flex px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 cursor-pointer"
+                className="hidden lg:inline-flex px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 cursor-pointer"
               >
                 Manage Groups
               </button>
@@ -609,6 +621,7 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+
 
                 {/* Manage Groups */}
                 <div>
@@ -697,6 +710,7 @@ export default function App() {
                   )}
                 </div>
               </div>
+
             </div>
           </div>
 
@@ -716,7 +730,7 @@ export default function App() {
                 notes={filteredNotes}
                 subgroups={subgroups}
                 sortBy={sortBy}
-                onSortChange={setSortBy}
+                onSortChange={handleSortChange}
                 onEdit={setEditingNote}
                 onDelete={handleDeleteNote}
                 onCopy={handleCopyNote}
