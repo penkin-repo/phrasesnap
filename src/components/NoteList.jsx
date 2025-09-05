@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdit, onDelete, onCopy }) {
+export default function NoteList({ notes, subgroups, selectedSubgroup, sortBy, onSortChange, onEdit, onDelete, onCopy }) {
   const [copyFeedback, setCopyFeedback] = useState(null);
 
   // Sort notes
@@ -22,6 +22,17 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
     if (!subgroupId) return null;
     const subgroup = subgroups.find(s => s.id === subgroupId);
     return subgroup ? subgroup.name : null;
+  };
+
+  const getCurrentGroupInfo = () => {
+    if (!selectedSubgroup) {
+      return { name: 'All Phrases', count: notes.length };
+    }
+    const subgroup = subgroups.find(s => s.id === selectedSubgroup);
+    if (subgroup) {
+      return { name: subgroup.name, count: notes.length };
+    }
+    return { name: 'All Phrases', count: notes.length };
   };
 
   const formatDate = (dateString) => {
@@ -51,21 +62,21 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           {/* Copy icon overlay */}
-          <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-1">
+          {/* <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-1">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-          </div>
+          </div> */}
         </div>
         <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No notes found</h3>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Get started by creating your first note.
         </p>
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-md">
+        {/* <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-md">
           <p className="text-xs text-blue-700 dark:text-blue-300">
             💡 <strong>Pro tip:</strong> Use the blue "Copy" button to quickly copy notes to your clipboard!
           </p>
-        </div>
+        </div> */}
       </div>
     );
   }
@@ -75,7 +86,7 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
       {/* Sort Controls */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-          {notes.length} note{notes.length !== 1 ? 's' : ''}
+          {getCurrentGroupInfo().name} ({getCurrentGroupInfo().count} notes)
         </h2>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500 dark:text-gray-400">Sort by:</span>
@@ -111,7 +122,7 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
               )}
             </div>
 
-            <div className="text-sm text-gray-600 dark:text-gray-300 flex-1 break-words overflow-hidden mb-4 line-clamp-1 max-h-[15px] max-w-full break-all word-break-break-word overflow-wrap-break-word">
+            <div className="text-sm text-gray-600 dark:text-gray-300 flex-1 break-words overflow-hidden mb-4 line-clamp-1 max-h-[18px] max-w-full break-all word-break-break-word overflow-wrap-break-word">
               {truncateContent(note.content, 200)}
             </div>
 
@@ -120,13 +131,14 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
 
             {/* Control Bar */}
             <div className="flex items-center justify-between">
+              {/* Copy button */}
               <button
                 onClick={() => {
                   onCopy(note);
                   setCopyFeedback(note.id);
                   setTimeout(() => setCopyFeedback(null), 2000);
                 }}
-                className="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors cursor-pointer"
+                className="inline-flex items-center px-3 py-2 border border-blue-100 text-gray-500  dark:text-blue-100 text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors cursor-pointer"
                 title="Copy note to clipboard"
               >
                 <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,6 +147,7 @@ export default function NoteList({ notes, subgroups, sortBy, onSortChange, onEdi
                 {copyFeedback === note.id ? 'Copied' : 'Copy'}
               </button>
 
+              {/* Edit and Delete buttons */}
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => onEdit(note.id)}

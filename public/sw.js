@@ -19,13 +19,16 @@ self.addEventListener('install', event => {
 
 // Fetch event - serve from cache if available, handle navigation
 self.addEventListener('fetch', event => {
-  // Handle navigation requests
+  // Handle navigation requests - serve from cache first to prevent reloads
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          // If network fails, return the cached index page
-          return caches.match(BASE_PATH) || caches.match('/');
+      caches.match(BASE_PATH)
+        .then(response => {
+          // Return cached version if available, otherwise fetch from network
+          return response || fetch(event.request).catch(() => {
+            // If both cache and network fail, return cached index
+            return caches.match(BASE_PATH) || caches.match('/');
+          });
         })
     );
     return;
@@ -39,6 +42,13 @@ self.addEventListener('fetch', event => {
         return response || fetch(event.request);
       })
   );
+});
+
+// Message event - handle skip waiting
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Activate event - clean up old caches and claim clients

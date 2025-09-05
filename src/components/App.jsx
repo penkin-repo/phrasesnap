@@ -15,7 +15,13 @@ export default function App() {
    const [subgroups, setSubgroups] = useState([]);
    const [isLoadingNotes, setIsLoadingNotes] = useState(false);
    const [isLoadingSubgroups, setIsLoadingSubgroups] = useState(false);
-   const [selectedSubgroup, setSelectedSubgroup] = useState(null);
+   const [selectedSubgroup, setSelectedSubgroup] = useState(() => {
+     if (typeof window !== 'undefined') {
+       const saved = localStorage.getItem('notes_selectedSubgroup');
+       return saved ? saved : null;
+     }
+     return null;
+   });
    const [searchQuery, setSearchQuery] = useState('');
    const [editingNote, setEditingNote] = useState(null);
    const [showSubgroupManager, setShowSubgroupManager] = useState(false);
@@ -30,6 +36,13 @@ export default function App() {
      setSortBy(newSortBy);
      if (typeof window !== 'undefined') {
        localStorage.setItem('notes_sortBy', newSortBy);
+     }
+   };
+
+   const handleSubgroupChange = (newSubgroupId) => {
+     setSelectedSubgroup(newSubgroupId);
+     if (typeof window !== 'undefined') {
+       localStorage.setItem('notes_selectedSubgroup', newSubgroupId || '');
      }
    };
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -77,6 +90,10 @@ export default function App() {
        navigator.serviceWorker.register('/sw.js')
          .then(registration => {
            console.log('SW registered: ', registration);
+           // Ensure the service worker takes control immediately
+           if (registration.waiting) {
+             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+           }
          })
          .catch(registrationError => {
            console.log('SW registration failed: ', registrationError);
@@ -448,7 +465,7 @@ export default function App() {
 
        setSubgroups(prev => prev.filter(subgroup => subgroup.id !== id));
        if (selectedSubgroup === id) {
-         setSelectedSubgroup(null);
+         handleSubgroupChange(null);
        }
 
        // Update local notes to reflect the change
@@ -585,7 +602,7 @@ export default function App() {
                   <div className="space-y-2">
                     <button
                       onClick={() => {
-                        setSelectedSubgroup(null);
+                        handleSubgroupChange(null);
                         setIsSidebarOpen(false);
                       }}
                       className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors cursor-pointer ${
@@ -594,13 +611,13 @@ export default function App() {
                           : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                       }`}
                     >
-                      All Phrases ({notes.length})
+                      All Phrases ({notes.length} notes)
                     </button>
                     {subgroups.map(subgroup => (
                       <button
                         key={subgroup.id}
                         onClick={() => {
-                          setSelectedSubgroup(subgroup.id);
+                          handleSubgroupChange(subgroup.id);
                           setIsSidebarOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center cursor-pointer ${
@@ -615,7 +632,7 @@ export default function App() {
                         />
                         {subgroup.name}
                         <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
-                          ({notes.filter(note => note.subgroup_id === subgroup.id).length})
+                          ({notes.filter(note => note.subgroup_id === subgroup.id).length} notes)
                         </span>
                       </button>
                     ))}
@@ -675,14 +692,14 @@ export default function App() {
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Groups</h3>
                 <div className="space-y-2">
                   <button
-                    onClick={() => setSelectedSubgroup(null)}
+                    onClick={() => handleSubgroupChange(null)}
                     className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                       selectedSubgroup === null
                         ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    All Phrases ({notes.length})
+                    All Phrases ({notes.length} notes)
                   </button>
                   {isLoadingSubgroups ? (
                     <SubgroupsListSkeleton count={3} />
@@ -690,7 +707,7 @@ export default function App() {
                     subgroups.map(subgroup => (
                       <button
                         key={subgroup.id}
-                        onClick={() => setSelectedSubgroup(subgroup.id)}
+                        onClick={() => handleSubgroupChange(subgroup.id)}
                         className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center ${
                           selectedSubgroup === subgroup.id
                             ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
@@ -703,7 +720,7 @@ export default function App() {
                         />
                         {subgroup.name}
                         <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
-                          ({notes.filter(note => note.subgroup_id === subgroup.id).length})
+                          ({notes.filter(note => note.subgroup_id === subgroup.id).length} notes)
                         </span>
                       </button>
                     ))
@@ -729,6 +746,7 @@ export default function App() {
               <NoteList
                 notes={filteredNotes}
                 subgroups={subgroups}
+                selectedSubgroup={selectedSubgroup}
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
                 onEdit={setEditingNote}

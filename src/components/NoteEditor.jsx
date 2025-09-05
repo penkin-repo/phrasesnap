@@ -89,7 +89,7 @@ export default function NoteEditor({ note, onSave, onCancel, subgroups }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full px-3 py-2 text-xl font-medium border-0 border-b-2 border-transparent focus:border-blue-500 focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 dark:text-white bg-transparent"
+              className="w-full px-3 py-2 text-xl font-medium border-0 border-b-2 border-transparent  focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 bg-transparent"
               autoFocus
               tabIndex={1}
             />
@@ -137,13 +137,16 @@ export default function NoteEditor({ note, onSave, onCancel, subgroups }) {
           <div>
             {note && note.created_at && note.updated_at && (
               <span>
-                Created: {new Date(note.created_at).toLocaleDateString()} •
+                Created: {new Date(note.created_at).toLocaleDateString()}
+                <span className="hidden md:inline"> • </span>
+                <br className="md:hidden"></br>
                 Updated: {new Date(note.updated_at).toLocaleDateString()}
               </span>
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <span>{content.length} characters</span>
+            <span className="hidden md:inline">{content.length} characters</span>
+            <span className="md:hidden">{content.length} ch.</span>
             <span>{content.split('\n').length} lines</span>
           </div>
         </div>
