@@ -56,7 +56,7 @@ export default function NoteEditor({ note, onSave, onCancel, subgroups }) {
             {note ? 'Edit Note' : 'New Note'}
           </h2>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-gray-500 dark:text-gray-400 hidden md:inline">
               Ctrl+S to save • Esc to cancel
             </span>
             <button
