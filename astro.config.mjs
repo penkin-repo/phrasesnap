@@ -5,7 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   integrations: [react()],
-
+  // output: 'static',
+  site: 'https://penkin-repo.github.io/phrasesnap/',
+  // base: '/phrasesnap',
   vite: {
     plugins: [tailwindcss()]
   },
