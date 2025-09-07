@@ -10,11 +10,11 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
-  // GitHub Pages configuration
-  site: process.env.GITHUB_ACTIONS 
-    ? 'https://penkin-repo.github.io/phrasesnap/' 
-    : 'http://localhost:4321',
-  base: process.env.GITHUB_ACTIONS 
-    ? '/phrasesnap/' 
-    : '/'
+  // // GitHub Pages configuration
+  // site: process.env.GITHUB_ACTIONS 
+  //   ? 'https://penkin-repo.github.io/phrasesnap/' 
+  //   : 'http://localhost:4321',
+  // base: process.env.GITHUB_ACTIONS 
+  //   ? '/phrasesnap/' 
+  //   : '/'
 });
