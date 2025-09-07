@@ -1,4 +1,4 @@
-export const RegisterSW = () => {
+export const ServiceWorker = () => {
     useEffect(() => {
         if ('serviceWorker' in navigator) {
             // Автоматически определяем base path

@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-
 export interface Props {
   title: string;
 }
@@ -21,8 +20,22 @@ const { title } = Astro.props;
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
     <div id="root">
       <slot />
-      <ServiceWorker client:only/>
     </div>
   </body>
 </html>
 
+<script>
+  // minimal-registration.js
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/phrasesnap/sw.js", {
+        scope: "/phrasesnap/",
+      })
+      .then((registration) => {
+        console.log("SW registered:", registration);
+      })
+      .catch((error) => {
+        console.log("SW registration failed:", error);
+      });
+  }
+</script>
