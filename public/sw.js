@@ -1,71 +1,84 @@
-const CACHE_NAME = 'notes-app-v1';
-const BASE_PATH = '/phrasesnap/';
+const CACHE_NAME = 'phrasesnap-v1';
+
+// Убираем BASE_PATH - SW сам знает свой контекст
 const urlsToCache = [
-  BASE_PATH,
-  BASE_PATH + 'favicon.svg',
-  BASE_PATH + 'manifest.json'
+  '/', // главная страница
+  '/manifest.json',
+  '/favicon.svg'
 ];
 
-// Install event - cache resources
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(urlsToCache))
   );
   self.skipWaiting();
 });
 
-// Fetch event - serve from cache if available, handle navigation
 self.addEventListener('fetch', event => {
-  // Handle navigation requests - serve from cache first to prevent reloads
-  if (event.request.mode === 'navigate') {
+  const url = new URL(event.request.url);
+  
+  // 1. API запросы к Supabase - сеть с кэшированием
+  if (url.href.includes('supabase.co')) {
     event.respondWith(
-      caches.match(BASE_PATH)
-        .then(response => {
-          // Return cached version if available, otherwise fetch from network
-          return response || fetch(event.request).catch(() => {
-            // If both cache and network fail, return cached index
-            return caches.match(BASE_PATH) || caches.match('/');
+      caches.open(CACHE_NAME).then(cache => {
+        return fetch(event.request)
+          .then(response => {
+            // Кэшируем успешные ответы
+            if (response.status === 200) {
+              cache.put(event.request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => {
+            // Оффлайн: пытаемся взять из кэша
+            return cache.match(event.request);
           });
-        })
+      })
     );
     return;
   }
 
-  // For other requests, try cache first, then network
+  // 2. Навигация - кэш сначала
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/')
+        .then(response => response || fetch(event.request))
+    );
+    return;
+  }
+
+  // 3. Статические ресурсы Astro - кэш сначала
+  if (url.pathname.includes('_astro')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => response || fetch(event.request))
+    );
+    return;
+  }
+
+  // 4. Остальное - сеть сначала
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });
 
-// Message event - handle skip waiting
+// Сообщения и активация - оставляем как было
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+  if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Activate event - clean up old caches and claim clients
 self.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
-      // Clean up old caches
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME) {
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
-      // Take control of all open clients
+      caches.keys().then(cacheNames => 
+        Promise.all(cacheNames.map(cacheName => 
+          cacheName !== CACHE_NAME ? caches.delete(cacheName) : null
+        ))
+      ),
       self.clients.claim()
     ])
   );
